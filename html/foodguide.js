@@ -319,7 +319,7 @@ import {recipes} from './recipes.js';
 		const ctx32 = canvas32.getContext && canvas32.getContext('2d');
 		const images = {};
 		const images32 = {};
-		const canvasSupported = !!ctx;
+		const canvasSupported = false;
 		let requests = [];
 		const cacheImage = url => {
 			const renderToCache = (url, imageElement) => {

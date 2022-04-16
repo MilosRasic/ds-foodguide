@@ -164,3 +164,7 @@ pip-log.txt
 
 # modern FE dev stuff
 node_modules
+
+# cypress
+cypress/videos/*
+cypress/downloads/*
