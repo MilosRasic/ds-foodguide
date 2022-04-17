@@ -1,22 +1,5 @@
-function shouldHaveModeToggles(togglesLayout) {
-	return toggles => {
-		togglesLayout.forEach(toggleDef => {
-			cy.wrap(toggles).find(`[data-mode="${toggleDef.mode}"]`).should(toggle => {
-				expect(toggle).to.have.lengthOf(1);
-
-				if (toggleDef.enabled) {
-					expect(toggle).to.have.class('enabled');
-				}
-				else {
-					expect(toggle).to.not.have.class('enabled');
-				}
-			});
-		});
-	};
-}
-
 describe('Simulator', () => {
-	beforeEach(() => {
+	before(() => {
 		cy.visit('http://localhost:3000');
 
 		// because the app saves menu state to local storage on beforeunload
@@ -26,43 +9,11 @@ describe('Simulator', () => {
 		});
 	});
 
+	beforeEach(() => {
+		cy.get('#simulator .clearingredients').click();
+	});
+
 	it('shows the blank simulator screen by default', () => {
-		cy.log('Checking game mode toggles');
-		cy.get('#navbar .mode').then(shouldHaveModeToggles([
-			{mode: 'vanilla', enabled: true},
-			{mode: 'giants', enabled: true},
-			{mode: 'shipwrecked', enabled: true},
-			{mode: 'hamlet', enabled: true},
-			{mode: 'together', enabled: false},
-			{mode: 'warly', enabled: false},
-		]));
-
-		cy.log('Checking main nav menu');
-		cy.get('[data-tab="simulator"]').should(item => {
-			expect(item).to.have.lengthOf(1);
-			expect(item).to.have.class('selected');
-		});
-		cy.get('[data-tab="discovery"]').should(item => {
-			expect(item).to.have.lengthOf(1);
-			expect(item).to.not.have.class('selected');
-		});
-		cy.get('[data-tab="foodlist"]').should(item => {
-			expect(item).to.have.lengthOf(1);
-			expect(item).to.not.have.class('selected');
-		});
-		cy.get('[data-tab="crockpot"]').should(item => {
-			expect(item).to.have.lengthOf(1);
-			expect(item).to.not.have.class('selected');
-		});
-		cy.get('[data-tab="statistics"]').should(item => {
-			expect(item).to.have.lengthOf(1);
-			expect(item).to.not.have.class('selected');
-		});
-		cy.get('[data-tab="help"]').should(item => {
-			expect(item).to.have.lengthOf(1);
-			expect(item).to.not.have.class('selected');
-		});
-
 		cy.log('Checking search');
 		cy.get('#simulator').within(() => {
 			cy.get('.searchselector').should(searchSelector => {
@@ -117,102 +68,6 @@ describe('Simulator', () => {
 		});
 	});
 
-	it('leaves only vanilla on when vanilla mode toggle is clicked', () => {
-		cy.get('[data-mode="vanilla"]').click();
-
-		cy.get('#navbar .mode').then(shouldHaveModeToggles([
-			{mode: 'vanilla', enabled: true},
-			{mode: 'giants', enabled: false},
-			{mode: 'shipwrecked', enabled: false},
-			{mode: 'hamlet', enabled: false},
-			{mode: 'together', enabled: false},
-			{mode: 'warly', enabled: false},
-		]));
-	});
-
-	it('leaves only vanilla and RoG on when RoG mode toggle is clicked', () => {
-		cy.get('[data-mode="giants"]').click();
-
-		cy.get('#navbar .mode').then(shouldHaveModeToggles([
-			{mode: 'vanilla', enabled: true},
-			{mode: 'giants', enabled: true},
-			{mode: 'shipwrecked', enabled: false},
-			{mode: 'hamlet', enabled: false},
-			{mode: 'together', enabled: false},
-			{mode: 'warly', enabled: false},
-		]));
-	});
-
-	it('leaves only vanilla, RoG and Shipwrecked on when RoG mode toggle is clicked', () => {
-		cy.get('[data-mode="shipwrecked"]').click();
-
-		cy.get('#navbar .mode').then(shouldHaveModeToggles([
-			{mode: 'vanilla', enabled: true},
-			{mode: 'giants', enabled: true},
-			{mode: 'shipwrecked', enabled: true},
-			{mode: 'hamlet', enabled: false},
-			{mode: 'together', enabled: false},
-			{mode: 'warly', enabled: false},
-		]));
-	});
-
-	it('leaves only vanilla, RoG, Shipwrecked and Hamlet on when Hamlet mode toggle is clicked', () => {
-		cy.get('[data-mode="hamlet"]').click();
-
-		cy.get('#navbar .mode').then(shouldHaveModeToggles([
-			{mode: 'vanilla', enabled: true},
-			{mode: 'giants', enabled: true},
-			{mode: 'shipwrecked', enabled: true},
-			{mode: 'hamlet', enabled: true},
-			{mode: 'together', enabled: false},
-			{mode: 'warly', enabled: false},
-		]));
-	});
-
-	it('leaves only vanilla, RoG and DST on when DST mode toggle is clicked', () => {
-		cy.get('[data-mode="together"]').click();
-
-		cy.get('#navbar .mode').then(shouldHaveModeToggles([
-			{mode: 'vanilla', enabled: true},
-			{mode: 'giants', enabled: true},
-			{mode: 'shipwrecked', enabled: false},
-			{mode: 'hamlet', enabled: false},
-			{mode: 'together', enabled: true},
-			{mode: 'warly', enabled: false},
-		]));
-	});
-
-	it('leaves only vanilla, RoG, Shipwrecked and Warly on when Warly mode toggle is clicked', () => {
-		cy.get('[data-mode="warly"]').click();
-
-		cy.get('#navbar .mode').then(shouldHaveModeToggles([
-			{mode: 'vanilla', enabled: true},
-			{mode: 'giants', enabled: true},
-			{mode: 'shipwrecked', enabled: true},
-			{mode: 'hamlet', enabled: false},
-			{mode: 'together', enabled: false},
-			{mode: 'warly', enabled: true},
-		]));
-	});
-
-	it('toggles a mode on and off when it is right-clicked', () => {
-		const togglesDef = [
-			{mode: 'vanilla', enabled: true},
-			{mode: 'giants', enabled: true},
-			{mode: 'shipwrecked', enabled: true},
-			{mode: 'hamlet', enabled: true},
-			{mode: 'together', enabled: false},
-			{mode: 'warly', enabled: false},
-		];
-
-		const randomToggleIndex = Cypress._.random(0, togglesDef.length - 1);
-		togglesDef[randomToggleIndex].enabled = !togglesDef[randomToggleIndex].enabled;
-
-		cy.get(`[data-mode="${togglesDef[randomToggleIndex].mode}"]`).rightclick();
-
-		cy.get('#navbar .mode').then(shouldHaveModeToggles(togglesDef));
-	});
-
 	it('can search for a an ingredient by name', () => {
 		cy.get('#simulator').within(() => {
 			cy.get('.ingredientdropdown .item').then(ingredients => {
@@ -245,6 +100,60 @@ describe('Simulator', () => {
 					expect(suggestions).to.have.length.of.at.least(1);
 				});
 			});
+		});
+	});
+
+	it('adds the same ingredient twice if it is clicked twice', () => {
+		cy.get('#simulator').within(() => {
+			cy.get('.ingredientdropdown .item').then(ingredients => {
+				return Cypress._.sample(ingredients.toArray());
+			}).then(randomIngredient => {
+				cy.wrap(randomIngredient).click();
+
+				cy.get('#ingredients .ingredient:first').should(firstIngredient => {
+					expect(firstIngredient).to.have.attr('data-id', randomIngredient.attr('data-id'));
+				});
+
+				cy.get('#ingredients .ingredient:nth-child(2)').should('have.attr', 'data-id', 'null');
+
+				cy.wrap(randomIngredient).click();
+
+				cy.get('#ingredients .ingredient:first').should(firstIngredient => {
+					expect(firstIngredient).to.have.attr('data-id', randomIngredient.attr('data-id'));
+				});
+
+				cy.get('#ingredients .ingredient:nth-child(2)').should(firstIngredient => {
+					expect(firstIngredient).to.have.attr('data-id', randomIngredient.attr('data-id'));
+				});
+			});
+		});
+	});
+
+	it('cannot add more than 4 ingredients', () => {
+		cy.get('#simulator').within(() => {
+			cy.get('.ingredientdropdown .item').then(ingredients => Cypress._.sample(ingredients.toArray())).then(randomIngredient1 => {
+				cy.wrap(randomIngredient1).click();
+
+				return cy.get('.ingredientdropdown .item').then(ingredients => Cypress._.sample(ingredients.toArray()));
+			}).then(randomIngredient2 => {
+				cy.wrap(randomIngredient2).click();
+
+				return cy.get('.ingredientdropdown .item').then(ingredients => Cypress._.sample(ingredients.toArray()));
+			}).then(randomIngredient3 => {
+				cy.wrap(randomIngredient3).click();
+
+				return cy.get('.ingredientdropdown .item').then(ingredients => Cypress._.sample(ingredients.toArray()));
+			}).then(randomIngredient4 => {
+				cy.wrap(randomIngredient4).click();
+
+				return cy.get('.ingredientdropdown .item').then(ingredients => Cypress._.sample(ingredients.toArray()));
+			}).then(randomIngredient5 => {
+				cy.wrap(randomIngredient5).click();
+
+				return cy.get('.ingredientdropdown .item').then(ingredients => Cypress._.sample(ingredients.toArray()));
+			});
+
+			cy.get('#ingredients .ingredient').should('have.length', 4);
 		});
 	});
 
@@ -350,6 +259,8 @@ describe('Simulator', () => {
 
 				cy.get('.ingredientdropdown .item .text').should(ingredientNames => {
 					expect(ingredientNames).to.be.hidden;
+				}).then(() => {
+					toggleNamesButton.click();
 				});
 			});
 		});
